@@ -21,7 +21,6 @@ const Home = () => {
 
     useEffect(() => {
         if(result === null) return;
-
         console.log(result);
     },[result]);
 
@@ -43,8 +42,6 @@ const Home = () => {
         }).then(res => {
             if(res.ok){
                 return res.json();   
-            } else{
-
             }
         }).then(res => {
             console.log(res);
@@ -67,8 +64,6 @@ const Home = () => {
         }).then(res => {
             if(res.ok){
                 return res.json();   
-            } else{
-
             }
         }).then(res => {
             console.log(res);
@@ -92,8 +87,6 @@ const Home = () => {
         }).then(res => {
             if(res.ok){
                 return res.json();   
-            } else{
-
             }
         }).then(res => {
             console.log(res);
