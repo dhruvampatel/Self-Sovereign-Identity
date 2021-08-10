@@ -2,8 +2,19 @@ module.exports.verify = async (req, res) => {
     console.log('Verifying...');
     const credentialsClient = req.instance;
 
-    const verifications = await credentialsClient.listVerifications();
+    let attributePolicies = [
+        {
+        policyName: "Transcript",
+        attributeNames: ['name', 'grade', 'student_id', 'course', 'year'],
+        }
+    ];
+    
+    let verification = await credentialsClient.createVerificationFromParameters({
+        name: "Transcript",
+        version: "1.0",
+        attributes: attributePolicies,
+    });
 
-    console.log(verifications);
-    res.send('Hi');
+    console.log(verification);
+    res.json({verification});
 }

@@ -2,7 +2,6 @@ import {useEffect, useState} from 'react';
 import './home.css';
 import Modal from '../Modal/Modal';
 const fetch = require('node-fetch');
-const QRCode = require('qrcode.react');
 
 const Home = () => {
 
@@ -11,13 +10,20 @@ const Home = () => {
     const [id, setId] = useState('');
     const [course, setCourse] = useState('');
     const [year, setYear] = useState('');
-    const [qrCodeUrl, setQrCodeUrl] = useState();
+    const [qrCodeUrl, setQrCodeUrl] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [result, setResult] = useState(null);
 
     useEffect(() => {
-        if(!qrCodeUrl) return;
+        if(qrCodeUrl === null) return;
         setShowModal(true);
     },[qrCodeUrl]);
+
+    useEffect(() => {
+        if(result === null) return;
+
+        console.log(result);
+    },[result]);
 
     const submitPressed = (e) => {
         e.preventDefault();
@@ -47,6 +53,7 @@ const Home = () => {
     }
 
     const closeModal = () => {
+        setQrCodeUrl(null);
         setShowModal(false);
     }
 
@@ -65,7 +72,32 @@ const Home = () => {
             }
         }).then(res => {
             console.log(res);
-            setQrCodeUrl(res.credential.offerUrl);
+            setQrCodeUrl(res.verification.verificationRequestUrl);
+            setTimeout(() => {
+                fetchResult(res.verification.verificationId);
+            }, 10000);
+        }).catch(err => console.error(err));
+    }
+
+    const fetchResult = (verificationId) => {
+        fetch(`${process.env.REACT_APP_BASE_URL}/result`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json', 
+                'Accept': 'application/json' 
+            },
+            body: JSON.stringify({
+                id: verificationId
+            })
+        }).then(res => {
+            if(res.ok){
+                return res.json();   
+            } else{
+
+            }
+        }).then(res => {
+            console.log(res);
+            setResult(res.verification.proof.Transcript.attributes);
         }).catch(err => console.error(err));
     }
 
@@ -122,11 +154,16 @@ const Home = () => {
                 <span style={{fontSize: '20px', fontWeight: 'bold', textAlign: 'center'}}>Verify credentials</span>
                 <button className='button'
                     onClick={verifyPressed}>Verify</button>
-                <span className='result'>Name: </span>
-                <span className='result'>Grade: </span>
-                <span className='result'>Student id: </span>
-                <span className='result'>Course: </span>
-                <span className='result'>Year: </span>
+                {result !== null ? 
+                    <div>
+                        <span className='result'>Name: {result.name}</span><br />
+                        <span className='result'>Grade: {result.grade}</span><br />
+                        <span className='result'>Student id: {result.student_id}</span><br />
+                        <span className='result'>Course: {result.course}</span><br />
+                        <span className='result'>Year: {result.year}</span>
+                    </div> 
+                    : null
+                }
             </div>
         </div>
     );
